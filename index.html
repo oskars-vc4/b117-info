@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu grafiks - 2 Sekcijas Pilns Platums</title>
-    
+    <title>Ārstu grafiks - Optimizēts</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <style>
@@ -18,7 +16,6 @@
             --accent-color: #d32f2f; 
         }
 
-        /* Noņemam pilnīgi visas atstarpes un scrollbars */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -26,91 +23,86 @@
         }
 
         html, body {
-            width: 100vw;
-            height: 100vh;
+            width: 1440px;
+            height: 1080px;
             overflow: hidden !important;
             background-color: #ffffff;
             font-family: 'Roboto Condensed', sans-serif;
         }
 
-        /* Paslēpjam scrollbar visiem pārlūkiem */
+        /* Paslēpjam scrollbars */
         *::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
 
         .wrapper {
-            width: 100vw;
-            height: 100vh;
-            padding: 20px; /* Tava 20px atstarpe no malām */
+            width: 100%;
+            height: 100%;
+            padding: 20px;
             display: flex;
             flex-direction: column;
         }
 
         .container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Divas precīzi vienādas kolonnas */
-            gap: 40px; /* Atstarpe starp abām tabulām */
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
             width: 100%;
-            height: 100%;
         }
 
         table {
-            width: 100%; /* Tabula izstiepjas pa visu savu pusi */
+            width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Fixēts platums, lai kolonu % darbotos */
+            table-layout: fixed;
         }
 
         th {
             background-color: var(--header-bg);
-            color: var(--header-text);
+            color: var(--header-text) !important; /* Piespiedu balts fonts */
             text-align: left;
-            padding: 15px 10px;
-            font-size: 22px;
+            padding: 10px;
+            font-size: 20px !important;
             font-weight: 700;
             text-transform: uppercase;
             border: 1px solid var(--border-color);
+            height: 50px;
         }
 
         td {
-            padding: 10px;
+            padding: 5px 10px;
             border: 1px solid var(--border-color);
-            font-size: 26px; /* Liels teksts */
-            line-height: 1.2;
+            font-size: 22px; /* Vienāds izmērs Ārsts un Informācija kolonnām */
+            line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            height: 75px; 
+            height: 60px; /* Fiksēts augstums rindu izlīdzināšanai */
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Kolonnu proporcijas % no tabulas platuma */
-        .col-1 { width: 35%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 35%; }
-        .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 28px; }
-        .col-4 { width: 20%; font-size: 18px; color: #444; }
+        /* Kolonnu proporcijas */
+        .col-1 { width: 30%; font-weight: 700; color: #10693a; }
+        .col-2 { width: 35%; color: #333; }
+        .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 24px; }
+        .col-4 { width: 25%; color: #333; }
 
         #error-msg {
             color: white;
             background: red;
             text-align: center;
             padding: 10px;
-            font-weight: bold;
             display: none;
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <div id="error-msg">Kļūda: Nevar savienoties ar Google Sheets. Pārbaudiet vai tabula ir "Published to web".</div>
+    <div id="error-msg">Kļūda: Nevar ielādēt datus.</div>
 
     <div class="wrapper">
         <div id="content" class="container"></div>
     </div>
 
     <script>
-        // Tava CSV saite no Google Sheets
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Jscw2AdeYt5syqR7_z_O5iBBdeopMpIDWXOUKbLo_KlnLWNUD6w_ljstR2GW9jHYlu5Kytp7QeDx/pub?output=csv';
 
         function loadData() {
@@ -118,14 +110,11 @@
                 download: true,
                 header: false,
                 complete: function(results) {
-                    document.getElementById('error-msg').style.display = 'none';
                     let data = results.data.filter(row => row.length > 1 && row[0].trim() !== "");
-                    
-                    // Noņemam galveni, ja tāda ir CSV failā
-                    if (data.length > 0 && data[0][0].toLowerCase().includes("spec")) {
+                    // Noņemam galveni no Sheets
+                    if (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
                         data.shift();
                     }
-                    
                     render(data);
                 },
                 error: function() {
@@ -168,10 +157,7 @@
             });
         }
 
-        // Sākotnējā ielāde
         loadData();
-
-        // Atjaunot datus ik pēc 5 minūtēm
         setInterval(loadData, 300000);
     </script>
 </body>
