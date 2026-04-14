@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu darba grafiks - 1 sekcija</title>
+    <title>Ārstu darba grafiks - 2 Sekcijas</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -11,16 +11,19 @@
             --header-bg: #10693a; 
             --header-text: #ffffff;
             --row-even: #f1f8e9;
-            --row-odd: #ffffff;
             --border-color: #bcbcbc;
             --accent-color: #d32f2f; 
         }
 
+        /* Pilnīga scrollbar noņemšana */
         * { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
+        *::-webkit-scrollbar { display: none; }
 
         body {
             font-family: 'Roboto Condensed', sans-serif;
@@ -33,7 +36,7 @@
         }
 
         .wrapper {
-            padding: 20px;
+            padding: 20px; /* 20px margin apkārt */
             height: 100%;
             width: 100%;
             display: flex;
@@ -41,11 +44,12 @@
         }
 
         .container {
-            /* Mainīts no 3 kolonnām uz 1 */
-            display: block; 
-            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 sekcijas blakus viena otrai */
+            gap: 25px; /* Atstarpe starp abām sekcijām */
             flex-grow: 1;
-            overflow-y: auto; /* Ja saraksts ir par garu, tas būs ritināms */
+            align-items: start;
+            overflow: hidden;
         }
 
         table {
@@ -59,31 +63,30 @@
             color: var(--header-text) !important;
             text-align: left;
             padding: 12px 10px;
-            font-size: 18px !important; 
+            font-size: 20px !important; 
             font-weight: 700 !important;
             text-transform: uppercase;
             border: 1px solid var(--border-color);
-            position: sticky; /* Virsraksts paliek augšā ritinot */
-            top: 0;
-            z-index: 10;
+            height: 60px;
         }
 
         td {
             padding: 8px 10px;
             border: 1px solid var(--border-color);
-            font-size: 18px;
-            line-height: 1.2;
+            font-size: 22px; /* Lieli, salasāmi burti */
+            line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
+            height: 70px; /* Fiksēts augstums rindu izlīdzināšanai */
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Pielāgoti platumi vienai plašai tabulai */
-        .col-1 { width: 30%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 30%; }
-        .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 20px; }
-        .col-4 { width: 30%; font-size: 16px; color: #444; }
+        /* Kolonnu proporcijas katrā sekcijā */
+        .col-1 { width: 32%; font-weight: 700; color: #10693a; }
+        .col-2 { width: 32%; }
+        .col-3 { width: 12%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 24px; }
+        .col-4 { width: 24%; font-size: 16px; color: #444; }
 
         #error-msg {
             color: red;
@@ -92,40 +95,12 @@
             font-size: 20px;
             display: none;
         }
-        /* 1. Pilnībā noņem scrollbar visai lapai un visiem tās elementiem */
-html, body {
-    overflow: hidden !important;
-    height: 100%;
-    width: 100%;
-}
-
-/* 2. Paslēpj scrollbar vizuāli, bet saglabā iespēju ritināt (Chrome, Safari, Edge) */
-*::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-/* 3. Paslēpj scrollbar Firefox un IE/Edge */
-* {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
-}
-
-/* 4. Konkrēti tavam datu konteineram */
-.wrapper {
-    overflow-y: auto; /* Ļauj ritināt saturu */
-    height: 100%;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <div id="error-msg">Atvainojiet, nevar ielādēt datus. Pārbaudiet interneta savienojumu.</div>
+        <div id="error-msg">Atvainojiet, nevar ielādēt datus. Pārbaudiet savienojumu.</div>
         <div id="content" class="container"></div>
     </div>
 
@@ -138,10 +113,11 @@ html, body {
                 header: false,
                 complete: function(results) {
                     const data = results.data.filter(row => row.length > 1 && row[0] !== "");
+                    // Noņemam galvenes rindu, ja tāda ir
                     while (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
                         data.shift();
                     }
-                    renderTable(data);
+                    renderTables(data);
                 },
                 error: function() {
                     document.getElementById('error-msg').style.display = 'block';
@@ -149,38 +125,43 @@ html, body {
             });
         }
 
-        function renderTable(data) {
+        function renderTables(data) {
             const container = document.getElementById('content');
             container.innerHTML = '';
 
-            const table = document.createElement('table');
-            
-            let rowsHtml = data.map(row => `
-                <tr>
-                    <td class="col-1">${row[0] || ''}</td>
-                    <td class="col-2">${row[1] || ''}</td>
-                    <td class="col-3">${row[2] || ''}</td>
-                    <td class="col-4">${row[3] || ''}</td>
-                </tr>
-            `).join('');
+            const totalRows = data.length;
+            const perTable = Math.ceil(totalRows / 2); // Sadalām uz 2 daļām
 
-            table.innerHTML = `
-                <thead>
+            for (let i = 0; i < 2; i++) {
+                const slice = data.slice(i * perTable, (i + 1) * perTable);
+                const table = document.createElement('table');
+                
+                let rowsHtml = slice.map(row => `
                     <tr>
-                        <th class="col-1">Specialitāte</th>
-                        <th class="col-2">Ārsts</th>
-                        <th class="col-3">Kab.</th>
-                        <th class="col-4">Informācija</th>
+                        <td class="col-1">${row[0] || ''}</td>
+                        <td class="col-2">${row[1] || ''}</td>
+                        <td class="col-3">${row[2] || ''}</td>
+                        <td class="col-4">${row[3] || ''}</td>
                     </tr>
-                </thead>
-                <tbody>${rowsHtml}</tbody>
-            `;
-            container.appendChild(table);
+                `).join('');
+
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th class="col-1">Specialitāte</th>
+                            <th class="col-2">Ārsts</th>
+                            <th class="col-3">Kab.</th>
+                            <th class="col-4">Informācija</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                `;
+                container.appendChild(table);
+            }
         }
 
         init();
-        // Atjauno datus ik pēc 5 minūtēm
-        setInterval(init, 300000); 
+        setInterval(init, 300000); // Atjauno ik pēc 5 minūtēm
     </script>
 </body>
 </html>
