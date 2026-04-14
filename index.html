@@ -92,6 +92,21 @@
             font-size: 20px;
             display: none;
         }
+
+        /* 1. Paslēpj ritjoslu Chrome, Safari un jaunajam Edge */
+        .wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+        /* 2. Paslēpj ritjoslu Firefox un vecajam Internet Explorer/Edge */
+        .wrapper {
+        -ms-overflow-style: none;  /* IE un Edge */
+        scrollbar-width: none;     /* Firefox */
+        
+        /* Šis nodrošina, ka saturs joprojām ir ritināms, 
+           pat ja vizuālā josla nav redzama */
+        overflow-y: auto; 
+    }
     </style>
 </head>
 <body>
