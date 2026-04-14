@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu grafiks - Optimizēts</title>
+    <title>Ārstu grafiks - Horizontāli Līmeņots</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
@@ -16,6 +16,7 @@
             --accent-color: #d32f2f; 
         }
 
+        /* Pamata iestatījumi, lai nekas neizietu ārpus rāmjiem */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -23,7 +24,7 @@
         }
 
         html, body {
-            width: 1440px;
+            width: 1440px; /* Tavs fiksētais ekrāna platums */
             height: 1080px;
             overflow: hidden !important;
             background-color: #ffffff;
@@ -37,51 +38,58 @@
         .wrapper {
             width: 100%;
             height: 100%;
-            padding: 20px;
+            padding: 20px; /* 20px margin apkārt visam */
             display: flex;
             flex-direction: column;
         }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            display: flex; /* Flexbox labākai platuma kontrolei */
+            justify-content: space-between;
+            gap: 30px; /* Atstarpe starp sekcijām */
             width: 100%;
+        }
+
+        .section {
+            flex: 1; /* Abas sekcijas būs precīzi vienāda platuma */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: fixed; /* Ļoti svarīgi: kolonnas nemaina platumu */
         }
 
         th {
             background-color: var(--header-bg);
-            color: var(--header-text) !important; /* Piespiedu balts fonts */
+            color: var(--header-text) !important;
             text-align: left;
             padding: 10px;
             font-size: 20px !important;
             font-weight: 700;
             text-transform: uppercase;
             border: 1px solid var(--border-color);
-            height: 50px;
+            height: 55px;
+            vertical-align: middle;
         }
 
         td {
             padding: 5px 10px;
             border: 1px solid var(--border-color);
-            font-size: 22px; /* Vienāds izmērs Ārsts un Informācija kolonnām */
+            font-size: 22px; 
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            height: 60px; /* Fiksēts augstums rindu izlīdzināšanai */
+            /* Fiksēts augstums garantē, ka rindas būs vienā līmenī */
+            height: 65px; 
+            overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Kolonnu proporcijas */
-        .col-1 { width: 30%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 35%; color: #333; }
+        /* Precīzi kolonnu platumi (kopā 100%) */
+        .col-1 { width: 33%; font-weight: 700; color: #10693a; }
+        .col-2 { width: 32%; color: #333; }
         .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 24px; }
         .col-4 { width: 25%; color: #333; }
 
@@ -96,7 +104,7 @@
 </head>
 <body>
 
-    <div id="error-msg">Kļūda: Nevar ielādēt datus.</div>
+    <div id="error-msg">Kļūda: Nevar ielādēt datus no Google Sheets.</div>
 
     <div class="wrapper">
         <div id="content" class="container"></div>
@@ -111,7 +119,7 @@
                 header: false,
                 complete: function(results) {
                     let data = results.data.filter(row => row.length > 1 && row[0].trim() !== "");
-                    // Noņemam galveni no Sheets
+                    // Noņemam galvenes rindu
                     if (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
                         data.shift();
                     }
@@ -128,11 +136,12 @@
             container.innerHTML = '';
 
             const half = Math.ceil(data.length / 2);
-            const leftData = data.slice(0, half);
-            const rightData = data.slice(half);
+            const sectionsData = [data.slice(0, half), data.slice(half)];
 
-            [leftData, rightData].forEach(slice => {
-                const table = document.createElement('table');
+            sectionsData.forEach(slice => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                
                 let rows = slice.map(row => `
                     <tr>
                         <td class="col-1">${row[0] || ''}</td>
@@ -142,18 +151,20 @@
                     </tr>
                 `).join('');
 
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th class="col-1">Specialitāte</th>
-                            <th class="col-2">Ārsts</th>
-                            <th class="col-3">Kab.</th>
-                            <th class="col-4">Informācija</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
+                sectionDiv.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="col-1">Specialitāte</th>
+                                <th class="col-2">Ārsts</th>
+                                <th class="col-3">Kab.</th>
+                                <th class="col-4">Informācija</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
                 `;
-                container.appendChild(table);
+                container.appendChild(sectionDiv);
             });
         }
 
