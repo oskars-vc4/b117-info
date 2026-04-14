@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ārstu darba grafiks - 1 sekcija</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --header-bg: #10693a; 
+            --header-text: #ffffff;
+            --row-even: #f1f8e9;
+            --row-odd: #ffffff;
+            --border-color: #bcbcbc;
+            --accent-color: #d32f2f; 
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: 'Roboto Condensed', sans-serif;
+            background-color: #ffffff;
+            width: 1440px;
+            height: 1080px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wrapper {
+            padding: 20px;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            /* Mainīts no 3 kolonnām uz 1 */
+            display: block; 
+            width: 100%;
+            flex-grow: 1;
+            overflow-y: auto; /* Ja saraksts ir par garu, tas būs ritināms */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--header-text) !important;
+            text-align: left;
+            padding: 12px 10px;
+            font-size: 18px !important; 
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            border: 1px solid var(--border-color);
+            position: sticky; /* Virsraksts paliek augšā ritinot */
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            font-size: 18px;
+            line-height: 1.2;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        tr:nth-child(even) { background-color: var(--row-even); }
+
+        /* Pielāgoti platumi vienai plašai tabulai */
+        .col-1 { width: 30%; font-weight: 700; color: #10693a; }
+        .col-2 { width: 30%; }
+        .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 20px; }
+        .col-4 { width: 30%; font-size: 16px; color: #444; }
+
+        #error-msg {
+            color: red;
+            text-align: center;
+            padding: 10px;
+            font-size: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div id="error-msg">Atvainojiet, nevar ielādēt datus. Pārbaudiet interneta savienojumu.</div>
+        <div id="content" class="container"></div>
+    </div>
+
+    <script>
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Jscw2AdeYt5syqR7_z_O5iBBdeopMpIDWXOUKbLo_KlnLWNUD6w_ljstR2GW9jHYlu5Kytp7QeDx/pub?output=csv';
+
+        function init() {
+            Papa.parse(csvUrl, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    const data = results.data.filter(row => row.length > 1 && row[0] !== "");
+                    while (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
+                        data.shift();
+                    }
+                    renderTable(data);
+                },
+                error: function() {
+                    document.getElementById('error-msg').style.display = 'block';
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const container = document.getElementById('content');
+            container.innerHTML = '';
+
+            const table = document.createElement('table');
+            
+            let rowsHtml = data.map(row => `
+                <tr>
+                    <td class="col-1">${row[0] || ''}</td>
+                    <td class="col-2">${row[1] || ''}</td>
+                    <td class="col-3">${row[2] || ''}</td>
+                    <td class="col-4">${row[3] || ''}</td>
+                </tr>
+            `).join('');
+
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th class="col-1">Specialitāte</th>
+                        <th class="col-2">Ārsts</th>
+                        <th class="col-3">Kab.</th>
+                        <th class="col-4">Informācija</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+            `;
+            container.appendChild(table);
+        }
+
+        init();
+        // Atjauno datus ik pēc 5 minūtēm
+        setInterval(init, 300000); 
+    </script>
+</body>
+</html>
