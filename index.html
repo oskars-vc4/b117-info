@@ -92,21 +92,34 @@
             font-size: 20px;
             display: none;
         }
+        /* 1. Pilnībā noņem scrollbar visai lapai un visiem tās elementiem */
+html, body {
+    overflow: hidden !important;
+    height: 100%;
+    width: 100%;
+}
 
-        /* 1. Paslēpj ritjoslu Chrome, Safari un jaunajam Edge */
-        .wrapper::-webkit-scrollbar {
-        display: none;
-    }
+/* 2. Paslēpj scrollbar vizuāli, bet saglabā iespēju ritināt (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
 
-        /* 2. Paslēpj ritjoslu Firefox un vecajam Internet Explorer/Edge */
-        .wrapper {
-        -ms-overflow-style: none;  /* IE un Edge */
-        scrollbar-width: none;     /* Firefox */
-        
-        /* Šis nodrošina, ka saturs joprojām ir ritināms, 
-           pat ja vizuālā josla nav redzama */
-        overflow-y: auto; 
-    }
+/* 3. Paslēpj scrollbar Firefox un IE/Edge */
+* {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+/* 4. Konkrēti tavam datu konteineram */
+.wrapper {
+    overflow-y: auto; /* Ļauj ritināt saturu */
+    height: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
     </style>
 </head>
 <body>
