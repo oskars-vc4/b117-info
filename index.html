@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu grafiks - Horizontāli Līmeņots</title>
+    <title>Ārstu grafiks - Pilns Platums</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
@@ -16,7 +16,6 @@
             --accent-color: #d32f2f; 
         }
 
-        /* Pamata iestatījumi, lai nekas neizietu ārpus rāmjiem */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -24,8 +23,8 @@
         }
 
         html, body {
-            width: 1440px; /* Tavs fiksētais ekrāna platums */
-            height: 1080px;
+            width: 100%;
+            height: 100vh;
             overflow: hidden !important;
             background-color: #ffffff;
             font-family: 'Roboto Condensed', sans-serif;
@@ -38,26 +37,29 @@
         .wrapper {
             width: 100%;
             height: 100%;
-            padding: 20px; /* 20px margin apkārt visam */
+            padding: 20px;
             display: flex;
             flex-direction: column;
         }
 
         .container {
-            display: flex; /* Flexbox labākai platuma kontrolei */
+            display: flex; /* Izmantojam flex, lai abas puses aizpildītu visu telpu */
             justify-content: space-between;
-            gap: 30px; /* Atstarpe starp sekcijām */
+            gap: 30px;
             width: 100%;
+            flex-grow: 1;
         }
 
         .section {
-            flex: 1; /* Abas sekcijas būs precīzi vienāda platuma */
+            flex: 1; /* Piespiež abām pusēm būt vienādā platumā un aizpildīt visu lapu */
+            display: flex;
+            flex-direction: column;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Ļoti svarīgi: kolonnas nemaina platumu */
+            table-layout: fixed; /* Palīdz saglabāt kolonnu platumus */
         }
 
         th {
@@ -70,28 +72,28 @@
             text-transform: uppercase;
             border: 1px solid var(--border-color);
             height: 55px;
-            vertical-align: middle;
         }
 
         td {
             padding: 5px 10px;
             border: 1px solid var(--border-color);
-            font-size: 22px; 
+            /* Fonta izmērs samazināts uz 20px, lai viss labāk ietilptu */
+            font-size: 20px; 
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            /* Fiksēts augstums garantē, ka rindas būs vienā līmenī */
             height: 65px; 
             overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Precīzi kolonnu platumi (kopā 100%) */
-        .col-1 { width: 33%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 32%; color: #333; }
-        .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 24px; }
-        .col-4 { width: 25%; color: #333; }
+        /* Koriģēti kolonnu platumi */
+        .col-1 { width: 32%; font-weight: 700; color: #10693a; }
+        .col-2 { width: 33%; color: #333; }
+        /* Kabineta kolonna palielināta uz 13%, lai ietilptu "238 A" utt. */
+        .col-3 { width: 13%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 22px; }
+        .col-4 { width: 22%; color: #333; }
 
         #error-msg {
             color: white;
@@ -104,7 +106,7 @@
 </head>
 <body>
 
-    <div id="error-msg">Kļūda: Nevar ielādēt datus no Google Sheets.</div>
+    <div id="error-msg">Kļūda: Nevar ielādēt datus.</div>
 
     <div class="wrapper">
         <div id="content" class="container"></div>
@@ -119,7 +121,6 @@
                 header: false,
                 complete: function(results) {
                     let data = results.data.filter(row => row.length > 1 && row[0].trim() !== "");
-                    // Noņemam galvenes rindu
                     if (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
                         data.shift();
                     }
