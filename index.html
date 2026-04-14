@@ -7,95 +7,86 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root {
-            --header-bg: #10693a; 
-            --header-text: #ffffff;
-            --row-even: #f1f8e9;
-            --border-color: #bcbcbc;
-            --accent-color: #d32f2f; 
-        }
+    :root {
+        --header-bg: #10693a; 
+        --header-text: #ffffff;
+        --row-even: #f1f8e9;
+        --border-color: #bcbcbc;
+        --accent-color: #d32f2f; 
+    }
 
-        /* Pilnīga scrollbar noņemšana */
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-        }
-        *::-webkit-scrollbar { display: none; }
+    * { 
+        box-sizing: border-box; 
+        margin: 0; 
+        padding: 0; 
+        scrollbar-width: none; 
+        -ms-overflow-style: none;
+    }
+    *::-webkit-scrollbar { display: none; }
 
-        body {
-            font-family: 'Roboto Condensed', sans-serif;
-            background-color: #ffffff;
-            width: 1440px;
-            height: 1080px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+        font-family: 'Roboto Condensed', sans-serif;
+        background-color: #ffffff;
+        width: 1440px; /* Tavs ekrāna platums */
+        height: 1080px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .wrapper {
-            padding: 20px; /* 20px margin apkārt */
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+    .wrapper {
+        padding: 20px;
+        height: 100%;
+        width: 100%; /* Aizpilda visu body platumu */
+        display: flex;
+        flex-direction: column;
+    }
 
-        .container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 sekcijas blakus viena otrai */
-            gap: 25px; /* Atstarpe starp abām sekcijām */
-            flex-grow: 1;
-            align-items: start;
-            overflow: hidden;
-        }
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Divas vienāda platuma kolonnas */
+        gap: 40px; /* Atstarpe starp tabulām */
+        width: 100%; /* Piespiež konteineru izstiepties */
+        flex-grow: 1;
+        align-items: start;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
+    table {
+        width: 100%; /* Katra tabula aizņem 100% no savas grid kolonnas */
+        border-collapse: collapse;
+        table-layout: fixed; /* Nodrošina stabilu kolonnu platumu */
+    }
 
-        th {
-            background-color: var(--header-bg);
-            color: var(--header-text) !important;
-            text-align: left;
-            padding: 12px 10px;
-            font-size: 20px !important; 
-            font-weight: 700 !important;
-            text-transform: uppercase;
-            border: 1px solid var(--border-color);
-            height: 60px;
-        }
+    th {
+        background-color: var(--header-bg);
+        color: var(--header-text) !important;
+        text-align: left;
+        padding: 15px 10px;
+        font-size: 20px !important; 
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        border: 1px solid var(--border-color);
+        height: 60px;
+    }
 
-        td {
-            padding: 8px 10px;
-            border: 1px solid var(--border-color);
-            font-size: 22px; /* Lieli, salasāmi burti */
-            line-height: 1.1;
-            vertical-align: middle;
-            word-wrap: break-word;
-            height: 70px; /* Fiksēts augstums rindu izlīdzināšanai */
-        }
+    td {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        font-size: 24px; /* Nedaudz lielāks teksts, lai labāk aizpildītu vietu */
+        line-height: 1.2;
+        vertical-align: middle;
+        word-wrap: break-word;
+        height: 75px; 
+    }
 
-        tr:nth-child(even) { background-color: var(--row-even); }
+    tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Kolonnu proporcijas katrā sekcijā */
-        .col-1 { width: 32%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 32%; }
-        .col-3 { width: 12%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 24px; }
-        .col-4 { width: 24%; font-size: 16px; color: #444; }
-
-        #error-msg {
-            color: red;
-            text-align: center;
-            padding: 10px;
-            font-size: 20px;
-            display: none;
-        }
-    </style>
+    /* Kolonnu proporcijas (procentos no tabulas platuma) */
+    .col-1 { width: 35%; font-weight: 700; color: #10693a; }
+    .col-2 { width: 35%; }
+    .col-3 { width: 10%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 26px; }
+    .col-4 { width: 20%; font-size: 18px; color: #444; }
+</style>
 </head>
 <body>
 
