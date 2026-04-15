@@ -14,7 +14,7 @@
             --row-even: #f1f8e9;
             --border-color: #bcbcbc;
             --accent-color: #d32f2f; 
-            --main-green: #10693a; /* Zaļā krāsa tekstam */
+            --main-green: #10693a;
         }
 
         * { 
@@ -60,6 +60,8 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            /* Pievienota atstarpe apakšā */
+            margin-bottom: 10px; 
         }
 
         th {
@@ -81,23 +83,17 @@
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            height: 48px;
+            /* Nedaudz samazināts augstums, lai droši ietilptu visi ieraksti */
+            height: 46px; 
             overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Koriģēti kolonnu platumi un krāsas */
-        .col-1 { width: 25%; font-weight: 700; color: var(--main-green); } /* Specialitāte */
-        .col-2 { width: 25%; color: #333; }                                /* Ārsts */
-        
-        /* Palielināts Kab. platums uz 12% */
+        .col-1 { width: 25%; font-weight: 700; color: var(--main-green); }
+        .col-2 { width: 25%; color: #333; }
         .col-3 { width: 12%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 19px; } 
-        
-        /* Samazināts Informācija platums uz 18% */
         .col-4 { width: 18%; color: #333; font-size: 15px; } 
-        
-        /* Tālrunis zaļā krāsā */
         .col-5 { width: 20%; color: var(--main-green); font-size: 17px; font-weight: 700; } 
 
         #error-msg {
