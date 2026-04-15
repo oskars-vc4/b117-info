@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu grafiks - Pilns Platums</title>
+    <title>Ārstu grafiks - Kompaktais variants</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
@@ -43,7 +43,7 @@
         }
 
         .container {
-            display: flex; /* Izmantojam flex, lai abas puses aizpildītu visu telpu */
+            display: flex;
             justify-content: space-between;
             gap: 30px;
             width: 100%;
@@ -51,7 +51,7 @@
         }
 
         .section {
-            flex: 1; /* Piespiež abām pusēm būt vienādā platumā un aizpildīt visu lapu */
+            flex: 1;
             display: flex;
             flex-direction: column;
         }
@@ -59,41 +59,40 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Palīdz saglabāt kolonnu platumus */
+            table-layout: fixed;
         }
 
         th {
             background-color: var(--header-bg);
             color: var(--header-text) !important;
             text-align: left;
-            padding: 10px;
-            font-size: 20px !important;
+            padding: 8px 10px;
+            font-size: 19px !important;
             font-weight: 700;
             text-transform: uppercase;
             border: 1px solid var(--border-color);
-            height: 55px;
+            height: 45px;
         }
 
         td {
-            padding: 5px 10px;
+            padding: 2px 10px;
             border: 1px solid var(--border-color);
-            /* Fonta izmērs samazināts uz 20px, lai viss labāk ietilptu */
-            font-size: 20px; 
+            font-size: 17px; /* Mazliet samazināts, lai ietilptu 5 kolonnas */
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            height: 65px; 
+            height: 48px;
             overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Koriģēti kolonnu platumi */
-        .col-1 { width: 32%; font-weight: 700; color: #10693a; }
-        .col-2 { width: 33%; color: #333; }
-        /* Kabineta kolonna palielināta uz 13%, lai ietilptu "238 A" utt. */
-        .col-3 { width: 13%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 22px; }
-        .col-4 { width: 22%; color: #333; }
+        /* Jaunas kolonnu proporcijas 5 kolonnām */
+        .col-1 { width: 25%; font-weight: 700; color: #10693a; } /* Specialitāte */
+        .col-2 { width: 25%; color: #333; }                    /* Ārsts */
+        .col-3 { width: 8%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 19px; } /* Kab. */
+        .col-4 { width: 22%; color: #333; font-size: 15px; }   /* Informācija */
+        .col-5 { width: 20%; color: #333; font-size: 16px; font-weight: 700; } /* Tālrunis */
 
         #error-msg {
             color: white;
@@ -113,7 +112,7 @@
     </div>
 
     <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Jscw2AdeYt5syqR7_z_O5iBBdeopMpIDWXOUKbLo_KlnLWNUD6w_ljstR2GW9jHYlu5Kytp7QeDx/pub?output=csv';
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Jscw2AdeYt5syqR7_z_O5iBBdeopMpIDWXOUKbLo_KlnLWNUD6w_ljstR2GW9jHYlu5Kytp7QeDx/pub?gid=1503309429&single=true&output=csv';
 
         function loadData() {
             Papa.parse(csvUrl, {
@@ -149,6 +148,7 @@
                         <td class="col-2">${row[1] || ''}</td>
                         <td class="col-3">${row[2] || ''}</td>
                         <td class="col-4">${row[3] || ''}</td>
+                        <td class="col-5">${row[4] || ''}</td>
                     </tr>
                 `).join('');
 
@@ -160,6 +160,7 @@
                                 <th class="col-2">Ārsts</th>
                                 <th class="col-3">Kab.</th>
                                 <th class="col-4">Informācija</th>
+                                <th class="col-5">Tālrunis</th>
                             </tr>
                         </thead>
                         <tbody>${rows}</tbody>
