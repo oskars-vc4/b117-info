@@ -51,6 +51,9 @@
         .container {
             width: 100%;
             flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
         }
 
         .section {
@@ -213,34 +216,51 @@
                 const endIndex = Math.min(startIndex + itemsPerPage, allData.length);
                 const pageData = allData.slice(startIndex, endIndex);
 
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section';
+                // Pârbaudâm, cik sekcijas ir informâcijâ un pielâgojam rindu skaitu
+                let rowsPerSection = 10; // Noklusçjuma
+                pageData.forEach(row => {
+                    if (row[3] && row[3].includes('/')) {
+                        const sections = row[3].split('/').length;
+                        if (sections > 1) {
+                            rowsPerSection = 20; // Ja ir 2+ sekcijas, tad 20 rindas katrâ pusç
+                        }
+                    }
+                });
                 
-                let rows = pageData.map(row => `
-                    <tr>
-                        <td class="col-1">${row[0] || ''}</td>
-                        <td class="col-2">${row[1] || ''}</td>
-                        <td class="col-3">${row[2] || ''}</td>
-                        <td class="col-4">${row[3] || ''}</td>
-                        <td class="col-5">${row[4] || ''}</td>
-                    </tr>
-                `).join('');
+                const leftSection = pageData.slice(0, rowsPerSection);
+                const rightSection = pageData.slice(rowsPerSection, rowsPerSection * 2);
+                const sectionsData = [leftSection, rightSection];
 
-                sectionDiv.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="col-1">Specialit&#257;te</th>
-                                <th class="col-2">&#256;rsts</th>
-                                <th class="col-3">Kab.</th>
-                                <th class="col-4">Inform&#257;cija</th>
-                                <th class="col-5">T&#257;lrunis</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
-                container.appendChild(sectionDiv);
+                sectionsData.forEach((slice, index) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section';
+                    
+                    let rows = slice.map(row => `
+                        <tr>
+                            <td class="col-1">${row[0] || ''}</td>
+                            <td class="col-2">${row[1] || ''}</td>
+                            <td class="col-3">${row[2] || ''}</td>
+                            <td class="col-4">${row[3] || ''}</td>
+                            <td class="col-5">${row[4] || ''}</td>
+                        </tr>
+                    `).join('');
+
+                    sectionDiv.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-1">Specialit&#257;te</th>
+                                    <th class="col-2">&#256;rsts</th>
+                                    <th class="col-3">Kab.</th>
+                                    <th class="col-4">Inform&#257;cija</th>
+                                    <th class="col-5">T&#257;lrunis</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    `;
+                    container.appendChild(sectionDiv);
+                });
                 
                 // Fade in efekts
                 setTimeout(() => {
