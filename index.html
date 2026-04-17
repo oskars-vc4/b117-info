@@ -83,23 +83,48 @@
         td {
             padding: 2px 8px;
             border: 1px solid var(--border-color);
-            font-size: 21px; 
+            font-size: 20px; 
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            /* Rindu augstums samazināts uz 44px, lai ietilptu vairāk ierakstu */
+            /* Rindu augstums samazinâts uz 44px, lai ietilptu vairâk ierakstu */
             height: 50px; 
             overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Koriģēti kolonnu platumi pēc tavas prasības */
-        .col-1 { width: 23%; font-weight: 700; color: #10693a; } /* Specialitāte - SAŅAURINÂTS */
-        .col-2 { width: 23%; color: #333; } /* Ārsts */
-        .col-3 { width: 15%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 21px; } /* KAB - PALIKTS PLATÂKS */
-        .col-4 { width: 22%; color: #444; font-size: 19px; } /* Informācija - SAŅAURINÂTS */
-        .col-5 { width: 17%; text-align: center; color: var(--phone-color); font-weight: 700; font-size: 20px; } /* Tālrunis */
+        /* Koriççti kolonnu platumi pçc tavas prasîbas */
+        .col-1 { width: 25%; font-weight: 700; color: #333; font-size: 20px; } /* Specialitâte - BOLD */
+        .col-2 { width: 23%; color: #333; font-size: 20px; } /* Ärsts - vienâds fonts */
+        .col-3 { width: 15%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 20px; } /* KAB - atðkirîgs fonts */
+        .col-4 { width: 22%; color: #333; font-size: 20px; } /* Informâcija - palielinâts */
+        .col-5 { width: 15%; text-align: center; color: #333; font-size: 20px; } /* Tâlrunis - palielinâts, centrçts */
+        
+        /* Centrçt tikai Tâlrunis header */
+        th.col-5 { text-align: center !important; }
+        
+        /* Plûdenâ pârslçðanâs starp lapâm */
+        .fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 10;
+        }
+        
+        .fade-overlay.active {
+            opacity: 1;
+        }
+        
+        .container {
+            position: relative;
+        }
 
         #error-msg {
             color: white;
@@ -115,7 +140,9 @@
     <div id="error-msg">Kļūda: Nevar ielādēt datus.</div>
 
     <div class="wrapper">
-        <div id="content" class="container"></div>
+        <div id="content" class="container">
+            <div class="fade-overlay"></div>
+        </div>
     </div>
 
     <script>
@@ -175,45 +202,59 @@
 
         function renderPage() {
             const container = document.getElementById('content');
-            container.innerHTML = '';
+            const fadeOverlay = container.querySelector('.fade-overlay');
+            
+            // Fade out efekts
+            fadeOverlay.classList.add('active');
+            
+            setTimeout(() => {
+                // Noñemam vecos tabulas, bet atstâjam fade overlay
+                const sections = container.querySelectorAll('.section');
+                sections.forEach(section => section.remove());
 
-            const startIndex = currentPage * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, allData.length);
-            const pageData = allData.slice(startIndex, endIndex);
+                const startIndex = currentPage * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, allData.length);
+                const pageData = allData.slice(startIndex, endIndex);
 
-            const half = Math.ceil(pageData.length / 2);
-            const sectionsData = [pageData.slice(0, half), pageData.slice(half)];
+                const half = Math.ceil(pageData.length / 2);
+                const sectionsData = [pageData.slice(0, half), pageData.slice(half)];
 
-            sectionsData.forEach(slice => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section';
+                sectionsData.forEach(slice => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section';
+                    
+                    let rows = slice.map(row => `
+                        <tr>
+                            <td class="col-1">${row[0] || ''}</td>
+                            <td class="col-2">${row[1] || ''}</td>
+                            <td class="col-3">${row[2] || ''}</td>
+                            <td class="col-4">${row[3] || ''}</td>
+                            <td class="col-5">${row[4] || ''}</td>
+                        </tr>
+                    `).join('');
+
+                    sectionDiv.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-1">Specialit&#257;te</th>
+                                    <th class="col-2">&#256;rsts</th>
+                                    <th class="col-3">Kab.</th>
+                                    <th class="col-4">Inform&#257;cija</th>
+                                    <th class="col-5">T&#257;lrunis</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    `;
+                    container.appendChild(sectionDiv);
+                });
                 
-                let rows = slice.map(row => `
-                    <tr>
-                        <td class="col-1">${row[0] || ''}</td>
-                        <td class="col-2">${row[1] || ''}</td>
-                        <td class="col-3">${row[2] || ''}</td>
-                        <td class="col-4">${row[3] || ''}</td>
-                        <td class="col-5">${row[4] || ''}</td>
-                    </tr>
-                `).join('');
-
-                sectionDiv.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="col-1">Specialitāte</th>
-                                <th class="col-2">Ārsts</th>
-                                <th class="col-3">Kab.</th>
-                                <th class="col-4">Informācija</th>
-                                <th class="col-5">Tālrunis</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
-                container.appendChild(sectionDiv);
-            });
+                // Fade in efekts
+                setTimeout(() => {
+                    fadeOverlay.classList.remove('active');
+                }, 50);
+            }, 300); // Gaidâm, kamçr fade-out beidzas
         }
 
         // Ielādēt datus sākotnēji
