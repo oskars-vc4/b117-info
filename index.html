@@ -193,11 +193,11 @@
                 clearInterval(paginationInterval);
             }
             
-            // Sākt jaunu pagināciju katras 10 sekundes
+            // Sākt jaunu pagināciju katras 20 sekundes
             paginationInterval = setInterval(() => {
                 currentPage = (currentPage + 1) % Math.ceil(allData.length / itemsPerPage);
                 renderPage();
-            }, 10000);
+            }, 20000);
         }
 
         function renderPage() {
