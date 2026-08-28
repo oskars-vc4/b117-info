@@ -2,8 +2,8 @@
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ārstu grafiks - Optimizēts Platums un Augstums</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>Ārstu grafiks - Digital Signage 1440x1080</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
@@ -25,10 +25,15 @@
 
         html, body {
             width: 100%;
-            height: 100vh;
+            height: 100%;
             overflow: hidden !important;
             background-color: #ffffff;
             font-family: 'Roboto Condensed', sans-serif;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         /* Scrollbar slēpšana */
@@ -36,19 +41,19 @@
         * { -ms-overflow-style: none; scrollbar-width: none; }
 
         .wrapper {
-            width: 100%;
-            height: 100%;
-            padding: 15px 20px;
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
             display: flex;
             flex-direction: column;
         }
 
         .container {
-            display: flex;
-            justify-content: space-between;
-            gap: 25px;
             width: 100%;
             flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
         }
 
         .section {
@@ -61,6 +66,12 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            flex: 1 1 auto;   /* liek tabulai izstiepties pa visu .section augstumu */
+            height: 100%;
+        }
+
+        tbody {
+            display: table-row-group;
         }
 
         th {
@@ -68,33 +79,58 @@
             color: var(--header-text) !important;
             text-align: left;
             padding: 5px 10px;
-            font-size: 18px !important;
+            font-size: 22px !important;
             font-weight: 700;
             text-transform: uppercase;
             border: 1px solid var(--border-color);
-            height: 38px;
+            height: 45px;
         }
 
         td {
             padding: 2px 8px;
             border: 1px solid var(--border-color);
-            font-size: 17px; 
+            font-size: 20px; 
             line-height: 1.1;
             vertical-align: middle;
             word-wrap: break-word;
-            /* Rindu augstums samazināts uz 44px, lai ietilptu vairāk ierakstu */
-            height: 39px; 
+            /* Rindu augstums samazinâts uz 44px, lai ietilptu vairâk ierakstu */
+            height: 50px; 
             overflow: hidden;
         }
 
         tr:nth-child(even) { background-color: var(--row-even); }
 
-        /* Koriģēti kolonnu platumi pēc tavas prasības */
-        .col-1 { width: 28%; font-weight: 700; color: #10693a; } /* Specialitāte */
-        .col-2 { width: 25%; color: #333; } /* Ārsts */
-        .col-3 { width: 14%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 17px; } /* KAB - PALIKTS PLATĀKS */
-        .col-4 { width: 18%; color: #444; font-size: 15px; } /* Informācija */
-        .col-5 { width: 15%; text-align: center; color: var(--phone-color); font-weight: 700; font-size: 16px; } /* Tālrunis - SAŠAURINĀTS */
+        /* Koriççti kolonnu platumi pçc tavas prasîbas */
+        .col-1 { width: 28%; font-weight: 700; color: #333; font-size: 20px; } /* Specialitâte - BOLD */
+        .col-2 { width: 20%; color: #333; font-size: 20px; } /* Ärsts - vienâds fonts */
+        .col-3 { width: 15%; text-align: center; color: var(--accent-color); font-weight: 700; font-size: 20px; } /* KAB - atðkirîgs fonts */
+        .col-4 { width: 22%; color: #333; font-size: 20px; } /* Informâcija - palielinâts */
+        .col-5 { width: 15%; text-align: center; color: #333; font-size: 20px; } /* Tâlrunis - palielinâts, centrçts */
+        
+        /* Centrçt tikai Tâlrunis header */
+        th.col-5 { text-align: center !important; }
+        
+        /* Plûdenâ pârslçðanâs starp lapâm */
+        .fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 10;
+        }
+        
+        .fade-overlay.active {
+            opacity: 1;
+        }
+        
+        .container {
+            position: relative;
+        }
 
         #error-msg {
             color: white;
@@ -110,11 +146,18 @@
     <div id="error-msg">Kļūda: Nevar ielādēt datus.</div>
 
     <div class="wrapper">
-        <div id="content" class="container"></div>
+        <div id="content" class="container">
+            <div class="fade-overlay"></div>
+        </div>
     </div>
 
     <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0Jscw2AdeYt5syqR7_z_O5iBBdeopMpIDWXOUKbLo_KlnLWNUD6w_ljstR2GW9jHYlu5Kytp7QeDx/pub?gid=2021067327&single=true&output=csv';
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeIGRXdkbiBp7_PtmYVC5zsRjmlSfR2sTDeXLTawFfj_mTgh_MJWSveISDXJbhZPusuxQK0OWG14Ri/pub?output=csv';
+        
+        let allData = [];
+        let currentPage = 0;
+        let paginationInterval;
+        let itemsPerPage = 52; // Dinamiski tiks aprēķināts
 
         function loadData() {
             Papa.parse(csvUrl, {
@@ -125,7 +168,24 @@
                     if (data.length > 0 && (data[0][0].toLowerCase().includes("spec") || data[0][0] === "")) {
                         data.shift();
                     }
-                    render(data);
+                    allData = data;
+                    
+                    // Dinamiski aprēķinām, cik rindu var rādīt vienā lapā
+                    // Sadalām datus vienādi starp abiem ekrāniem
+                    const maxRowsPerScreen = Math.floor(data.length / 2);
+                    // Mēģinām rādīt pēc iespējas vairāk, bet ne vairāk kā 30 rindu vienā ekrānā
+                    itemsPerPage = Math.min(maxRowsPerScreen * 2, 60);
+                    
+                    // Ja ir mazāk par 10 rindām kopā, rādām visas uzreiz
+                    if (data.length <= 10) {
+                        itemsPerPage = data.length;
+                    }
+                    
+                    console.log(`Kopējais rindu skaits: ${data.length}, Rindas vienā lapā: ${itemsPerPage}`);
+                    
+                    currentPage = 0;
+                    startPagination();
+                    renderPage();
                 },
                 error: function() {
                     document.getElementById('error-msg').style.display = 'block';
@@ -133,46 +193,92 @@
             });
         }
 
-        function render(data) {
-            const container = document.getElementById('content');
-            container.innerHTML = '';
-
-            const half = Math.ceil(data.length / 2);
-            const sectionsData = [data.slice(0, half), data.slice(half)];
-
-            sectionsData.forEach(slice => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section';
-                
-                let rows = slice.map(row => `
-                    <tr>
-                        <td class="col-1">${row[0] || ''}</td>
-                        <td class="col-2">${row[1] || ''}</td>
-                        <td class="col-3">${row[2] || ''}</td>
-                        <td class="col-4">${row[3] || ''}</td>
-                        <td class="col-5">${row[4] || ''}</td>
-                    </tr>
-                `).join('');
-
-                sectionDiv.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="col-1">Specialitāte</th>
-                                <th class="col-2">Ārsts</th>
-                                <th class="col-3">Kab.</th>
-                                <th class="col-4">Informācija</th>
-                                <th class="col-5">Tālrunis</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
-                container.appendChild(sectionDiv);
-            });
+        function startPagination() {
+            // Apturiet iepriekšējo intervālu, ja tāds ir
+            if (paginationInterval) {
+                clearInterval(paginationInterval);
+            }
+            
+            // Sākt jaunu pagināciju katras 20 sekundes
+            paginationInterval = setInterval(() => {
+                currentPage = (currentPage + 1) % Math.ceil(allData.length / itemsPerPage);
+                renderPage();
+            }, 20000);
         }
 
+        function renderPage() {
+            const container = document.getElementById('content');
+            const fadeOverlay = container.querySelector('.fade-overlay');
+            
+            // Fade out efekts
+            fadeOverlay.classList.add('active');
+            
+            setTimeout(() => {
+                // Noñemam vecos tabulas, bet atstâjam fade overlay
+                const sections = container.querySelectorAll('.section');
+                sections.forEach(section => section.remove());
+
+                const startIndex = currentPage * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, allData.length);
+                const pageData = allData.slice(startIndex, endIndex);
+
+                // Pârbaudâm, cik sekcijas ir informâcijâ un pielâgojam rindu skaitu
+                let rowsPerSection = 10; // Noklusçjuma
+                pageData.forEach(row => {
+                    if (row[3] && row[3].includes('/')) {
+                        const sections = row[3].split('/').length;
+                        if (sections > 1) {
+                            rowsPerSection = 20; // Ja ir 2+ sekcijas, tad 20 rindas katrâ pusç
+                        }
+                    }
+                });
+                
+                const leftSection = pageData.slice(0, rowsPerSection);
+                const rightSection = pageData.slice(rowsPerSection, rowsPerSection * 2);
+                const sectionsData = [leftSection, rightSection];
+
+                sectionsData.forEach((slice, index) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section';
+                    
+                    let rows = slice.map(row => `
+                        <tr>
+                            <td class="col-1">${row[0] || ''}</td>
+                            <td class="col-2">${row[1] || ''}</td>
+                            <td class="col-3">${row[2] || ''}</td>
+                            <td class="col-4">${row[3] || ''}</td>
+                            <td class="col-5">${row[4] || ''}</td>
+                        </tr>
+                    `).join('');
+
+                    sectionDiv.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-1">Specialit&#257;te</th>
+                                    <th class="col-2">&#256;rsts</th>
+                                    <th class="col-3">Kab.</th>
+                                    <th class="col-4">Inform&#257;cija</th>
+                                    <th class="col-5">T&#257;lrunis</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    `;
+                    container.appendChild(sectionDiv);
+                });
+                
+                // Fade in efekts
+                setTimeout(() => {
+                    fadeOverlay.classList.remove('active');
+                }, 50);
+            }, 300); // Gaidâm, kamçr fade-out beidzas
+        }
+
+        // Ielādēt datus sākotnēji
         loadData();
+        
+        // Atjauninât datus no CSV ik pēc 5 minūtēm
         setInterval(loadData, 300000);
     </script>
 </body>
