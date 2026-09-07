@@ -68,6 +68,10 @@
             table-layout: fixed;
         }
 
+        tbody {
+            display: table-row-group;
+        }
+
         th {
             background-color: var(--header-bg);
             color: var(--header-text) !important;
@@ -152,6 +156,14 @@
         let currentPage = 0;
         let paginationInterval;
         let itemsPerPage = 52; // Dinamiski tiks aprēķināts
+        let rowsPerSection = 26; // Dinamiski tiks aprēķināts
+
+        function calculateRowsPerSection(needsExtraSpace) {
+            // Reāls tests uz ekrāna apstiprināja: 20 rindas katrā no 2 kolonnām
+            // (40 kopā vienā slaidā) vienmēr ietilpst bez apgriešanas —
+            // neatkarīgi no tā, vai ierakstā ir "/" saturs vai nē.
+            return 20;
+        }
 
         function loadData() {
             Papa.parse(csvUrl, {
@@ -164,18 +176,23 @@
                     }
                     allData = data;
                     
-                    // Dinamiski aprēķinām, cik rindu var rādīt vienā lapā
-                    // Sadalām datus vienādi starp abiem ekrāniem
-                    const maxRowsPerScreen = Math.floor(data.length / 2);
-                    // Mēģinām rādīt pēc iespējas vairāk, bet ne vairāk kā 30 rindu vienā ekrānā
-                    itemsPerPage = Math.min(maxRowsPerScreen * 2, 60);
-                    
-                    // Ja ir mazāk par 10 rindām kopā, rādām visas uzreiz
-                    if (data.length <= 10) {
+                    // Nosakām, vai kaut kur ir daudzdaļīga informācija (ar "/"),
+                    // kam vajag nedaudz vairāk rindas augstuma.
+                    const needsExtraSpace = allData.some(row => row[3] && row[3].split('/').length > 1);
+                    rowsPerSection = calculateRowsPerSection(needsExtraSpace);
+
+                    // Ekrānā vienmēr ir 2 sekcijas (kolonnas), tāpēc lapā rādīto
+                    // rindu skaitam PRECĪZI jāsakrīt ar to, cik tiek uzzīmētas —
+                    // citādi starpība starp "paņemts no datiem" un "parādīts"
+                    // rada pazudušas rindas.
+                    itemsPerPage = rowsPerSection * 2;
+
+                    // Ja datu maz, rādām visu uzreiz vienā lapā (bez otrās tukšas)
+                    if (data.length <= itemsPerPage) {
                         itemsPerPage = data.length;
                     }
                     
-                    console.log(`Kopējais rindu skaits: ${data.length}, Rindas vienā lapā: ${itemsPerPage}`);
+                    console.log(`Kopējais rindu skaits: ${data.length}, Rindas sekcijā: ${rowsPerSection}, Rindas vienā lapā: ${itemsPerPage}, Lapu skaits: ${Math.ceil(data.length / itemsPerPage)}`);
                     
                     currentPage = 0;
                     startPagination();
@@ -216,19 +233,14 @@
                 const endIndex = Math.min(startIndex + itemsPerPage, allData.length);
                 const pageData = allData.slice(startIndex, endIndex);
 
-                // Pârbaudâm, cik sekcijas ir informâcijâ un pielâgojam rindu skaitu
-                let rowsPerSection = 10; // Noklusçjuma
-                pageData.forEach(row => {
-                    if (row[3] && row[3].includes('/')) {
-                        const sections = row[3].split('/').length;
-                        if (sections > 1) {
-                            rowsPerSection = 20; // Ja ir 2+ sekcijas, tad 20 rindas katrâ pusç
-                        }
-                    }
-                });
-                
-                const leftSection = pageData.slice(0, rowsPerSection);
-                const rightSection = pageData.slice(rowsPerSection, rowsPerSection * 2);
+                // rowsPerSection tiek noteikts VIENREIZ (loadData funkcijā, visiem
+                // datiem kopā), lai sakristu ar itemsPerPage un neviena rinda nepazustu.
+                // Katras konkrētās lapas ietvaros sadalām pieejamos ierakstus PA VIDU
+                // starp abām kolonnām (nevis vienmēr piepildām kreiso līdz galam),
+                // lai pēdējā, nepilnā lapa izskatās vienmērīga (piem. 21 -> 11+10).
+                const halfPoint = Math.ceil(pageData.length / 2);
+                const leftSection = pageData.slice(0, halfPoint);
+                const rightSection = pageData.slice(halfPoint, halfPoint * 2);
                 const sectionsData = [leftSection, rightSection];
 
                 sectionsData.forEach((slice, index) => {
