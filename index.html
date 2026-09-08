@@ -68,6 +68,15 @@
             table-layout: fixed;
         }
 
+        /* Piemēro TIKAI pilnām lapām (kad sekcijā ir pilns rindu skaits),
+           lai tabula vienmēr aizpilda visu pieejamo augstumu neatkarīgi no
+           faktiskās ekrāna izšķirtspējas/DPI. Nepilnajā pēdējā lapā šo
+           klasi nepievienojam, lai izvairītos no vienas milzīgas rindas. */
+        table.stretch {
+            flex: 1 1 auto;
+            height: 100%;
+        }
+
         tbody {
             display: table-row-group;
         }
@@ -243,6 +252,13 @@
                 const rightSection = pageData.slice(halfPoint, halfPoint * 2);
                 const sectionsData = [leftSection, rightSection];
 
+                // Pilna lapa = sasniegts plānotais rindu skaits (itemsPerPage).
+                // Tikai tad ļaujam tabulai izstiepties līdz 100% augstumam —
+                // tā vienmēr aizpildīs ekrānu, lai kāda arī nebūtu reālā
+                // izšķirtspēja/DPI konkrētajā signage ierīcē. Nepilnajā
+                // (parasti pēdējā) lapā atstājam dabisko augstumu.
+                const isFullPage = pageData.length === itemsPerPage;
+
                 sectionsData.forEach((slice, index) => {
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'section';
@@ -258,7 +274,7 @@
                     `).join('');
 
                     sectionDiv.innerHTML = `
-                        <table>
+                        <table class="${isFullPage ? 'stretch' : ''}">
                             <thead>
                                 <tr>
                                     <th class="col-1">Specialit&#257;te</th>
